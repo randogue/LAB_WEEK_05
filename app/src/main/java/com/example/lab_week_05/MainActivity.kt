@@ -53,12 +53,10 @@ class MainActivity : AppCompatActivity() {
         //Call.enqueue calls specified query
         call.enqueue(object : Callback<String> {
             override fun onFailure(call: Call<String?>, t: Throwable) {
-                TODO("Not yet implemented")
                 Log.e("MAIN_ACTIVITY", "Failed to get response", t)
             }
 
             override fun onResponse(call: Call<String?>, response: Response<String?>) {
-                TODO("Not yet implemented")
                 if(response.isSuccessful){
                     apiResponseView.text = response.body()
                 }
