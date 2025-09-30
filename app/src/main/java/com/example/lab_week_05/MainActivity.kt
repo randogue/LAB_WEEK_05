@@ -2,6 +2,7 @@ package com.example.lab_week_05
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -37,6 +38,18 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.api_response)
     }
 
+    //get ref to ImageView with id "image_result"
+    private val imageResultView : ImageView by lazy {
+        findViewById<ImageView>(R.id.image_result)
+    }
+
+    //instantiate glide loader into val imageLoader
+    private val imageLoader: ImageLoader by lazy {
+        GlideLoader(this)
+        //when looking for context in activity, use "this".Meanwhile in fragment, use require.context().
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -60,19 +73,35 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call<List<ImageData>>, response: Response<List<ImageData>>) {
-                if(response.isSuccessful){
+                if(response.isSuccessful){ //when api response successful
                     val image = response.body()
-                    val firstImage = image?.firstOrNull()?.imageUrl ?: "No URL"
+                    val firstImage = image?.firstOrNull()?.imageUrl.orEmpty()
+                    //orEmpty() will fill the val with emptiness if null, is my guess
+                    if (firstImage.isNotBlank()) { //blank is for var/val
+                        imageLoader.loadImage(firstImage, imageResultView)
+                    }
+                    else {
+                        Log.d("MAIN_ACTIVITY", "Missing image URL")
+                    }
+
                     //if imageUrl not found, firstImage will be filled with "No URL"
                     apiResponseView.text = getString(R.string.image_placeholder,
                         firstImage)
                     //when using get string, you can add extra argument to add a format (%s for string)
-                }
-                else {
+
+                    //responseView swap with cat breeds.
+                    val firstBreed = image?.firstOrNull()?.breeds.orEmpty()
+                    if (firstBreed.isNotEmpty()) {//cannot use blank on data class?
+                        val breedName : String? = firstBreed.get(0).name.toString()
+                        apiResponseView.text = "Cat Breed: "+breedName
+                    }
+                } //end of successful response
+
+                else { //when api response failed
                     Log.e("MAIN_ACTIVITY", "Failed to get respons\n" +
                     response.errorBody()?.string().orEmpty()
                     )
-                }
+                }//end of failed response
             }
         })
     }
