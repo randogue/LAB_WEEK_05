@@ -93,8 +93,12 @@ class MainActivity : AppCompatActivity() {
                     val firstBreed = image?.firstOrNull()?.breeds.orEmpty()
                     if (firstBreed.isNotEmpty()) {//cannot use blank on data class?
                         val breedName : String? = firstBreed.get(0).name.toString()
-                        apiResponseView.text = "Cat Breed: "+breedName
+                        apiResponseView.text = getString(R.string.cat_breed, breedName)
                     }
+                    else {
+                        apiResponseView.text = getString(R.string.cat_breed, "Unknown")
+                    }
+
                 } //end of successful response
 
                 else { //when api response failed
